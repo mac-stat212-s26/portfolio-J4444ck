@@ -7,3 +7,36 @@ title: "Homework 01"
 
 Explore the week's [TidyTuesday](https://github.com/rfordatascience/tidytuesday) challenge. Develop a research question, then answer it through a short data story with [effective visualization(s)]({{< var effective-viz-url >}}).  Provide sufficient background for readers to grasp your narrative.
 
+Research Question:
+How are median earnings across U.S. college majors related to unemployment rates?
+
+Background:
+College majors differ widely in labor-market outcomes. Examining both earnings and unemployment provides a more complete picture of post-graduation economic stability.
+
+Data Story:
+The visualization shows a negative relationship between median earnings and unemployment. High-earning majors such as engineering and computer science generally experience lower unemployment, while arts and humanities majors tend to have lower earnings and higher unemployment. Some fields, such as education, display moderate earnings but relatively stable employment, indicating that income alone does not capture labor-market security.
+
+
+```{r}
+library(tidyverse)
+library(tidytuesdayR)
+
+tuesdata <- tidytuesdayR::tt_load("2018-10-16")
+majors <- tuesdata$`recent-grads`
+
+majors %>%
+  filter(!is.na(Median), !is.na(Unemployment_rate)) %>%
+  ggplot(aes(x = Median, y = Unemployment_rate, color = Major_category)) +
+  geom_point(alpha = 0.7) +
+  scale_x_continuous(labels = scales::dollar_format()) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(
+    title = "Earnings and Unemployment Across U.S. College Majors",
+    x = "Median Annual Earnings",
+    y = "Unemployment Rate",
+    color = "Major Category"
+  ) +
+  theme_minimal()
+
+```
+
