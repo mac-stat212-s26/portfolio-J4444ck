@@ -43,6 +43,72 @@
     ]
   },
   {
+    "objectID": "tt/hw01-tt.html",
+    "href": "tt/hw01-tt.html",
+    "title": "Homework 01",
+    "section": "",
+    "text": "TidyTuesday Section\nExplore the week’s TidyTuesday challenge. Develop a research question, then answer it through a short data story with effective visualization(s). Provide sufficient background for readers to grasp your narrative.\nResearch Question: How are median earnings across U.S. college majors related to unemployment rates?\nBackground: College majors differ widely in labor-market outcomes. Examining both earnings and unemployment provides a more complete picture of post-graduation economic stability.\nData Story: The visualization shows a negative relationship between median earnings and unemployment. High-earning majors such as engineering and computer science generally experience lower unemployment, while arts and humanities majors tend to have lower earnings and higher unemployment. Some fields, such as education, display moderate earnings but relatively stable employment, indicating that income alone does not capture labor-market security.\nCodelibrary(tidyverse)\nlibrary(tidytuesdayR)\n\ntuesdata &lt;- tidytuesdayR::tt_load(\"2018-10-16\")\nmajors &lt;- tuesdata$`recent-grads`\n\nmajors %&gt;%\n  filter(!is.na(Median), !is.na(Unemployment_rate)) %&gt;%\n  ggplot(aes(x = Median, y = Unemployment_rate, color = Major_category)) +\n  geom_point(alpha = 0.7) +\n  scale_x_continuous(labels = scales::dollar_format()) +\n  scale_y_continuous(labels = scales::percent_format()) +\n  labs(\n    title = \"Earnings and Unemployment Across U.S. College Majors\",\n    x = \"Median Annual Earnings\",\n    y = \"Unemployment Rate\",\n    color = \"Major Category\"\n  ) +\n  theme_minimal()",
+    "crumbs": [
+      "TidyTuesday",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Homework 01</span>"
+    ]
+  },
+  {
+    "objectID": "tt/hw02-tt.html",
+    "href": "tt/hw02-tt.html",
+    "title": "Homework 02",
+    "section": "",
+    "text": "TidyTuesday Section (optional)\nExplore the week’s TidyTuesday challenge. Develop a research question, then answer it through a short data story with effective visualization(s). Provide sufficient background for readers to grasp your narrative.",
+    "crumbs": [
+      "TidyTuesday",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Homework 02</span>"
+    ]
+  },
+  {
+    "objectID": "tt/hw02-tt.html#tidytuesday-section-optional",
+    "href": "tt/hw02-tt.html#tidytuesday-section-optional",
+    "title": "Homework 02",
+    "section": "",
+    "text": "ImportantInstructions\n\n\n\nYou can count work on this week’s TidyTuesday toward the exceptional work required for an A in the Homework component.",
+    "crumbs": [
+      "TidyTuesday",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Homework 02</span>"
+    ]
+  },
+  {
+    "objectID": "tt/hw02-tt.html#research-question",
+    "href": "tt/hw02-tt.html#research-question",
+    "title": "Homework 02",
+    "section": "Research question",
+    "text": "Research question\nHave LEGO set prices increased faster than set size (piece count) over time, and what does that mean for “value” (price per piece)?",
+    "crumbs": [
+      "TidyTuesday",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Homework 02</span>"
+    ]
+  },
+  {
+    "objectID": "tt/hw02-tt.html#background",
+    "href": "tt/hw02-tt.html#background",
+    "title": "Homework 02",
+    "section": "Background",
+    "text": "Background\nLEGO fans often compare sets by price per piece as a rough measure of value. Over time, sets have changed in complexity, licensing, and production costs. Using the LEGO Sets TidyTuesday data, I compare how piece counts and prices move across years, and whether price-per-piece has trended upward.",
+    "crumbs": [
+      "TidyTuesday",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Homework 02</span>"
+    ]
+  },
+  {
+    "objectID": "tt/hw02-tt.html#data",
+    "href": "tt/hw02-tt.html#data",
+    "title": "Homework 02",
+    "section": "Data",
+    "text": "Data\n\nCodelibrary(tidyverse)\nlibrary(tidytuesdayR)\nlibrary(scales)\n\ntt &lt;- tt_load(\"2022-09-06\")\nsets &lt;- tt$`sets.csv`\n\n\n\nCodesets_clean &lt;- sets |&gt;\n  transmute(\n    year = as.integer(year),\n    name,\n    theme_id,\n    pieces = as.numeric(num_parts)\n  )\n\n\n\nCodeggplot(sets_clean, aes(x = year, y = pieces)) +\n  geom_point(alpha = 0.2) +\n  geom_smooth(method = \"lm\") +\n  labs(x = \"Year\", y = \"Number of parts\")\n\n\n\n\n\n\n\n\nCodesets_clean &lt;- sets_clean |&gt;\n  mutate(decade = floor(year / 10) * 10)\n\nggplot(sets_clean, aes(x = factor(decade), y = pieces)) +\n  geom_boxplot(outlier.alpha = 0.2) +\n  scale_y_log10() +\n  labs(\n    x = \"Decade\",\n    y = \"Number of parts (log scale)\",\n    title = \"LEGO set sizes have increased over time\",\n    subtitle = \"Distribution of number of parts by decade\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\nThis analysis uses LEGO set data from TidyTuesday to examine how LEGO sets have changed over time. My research question asks whether LEGO sets have become larger, as measured by the number of pieces, across different years. The first plot shows the relationship between release year and number of pieces, with a fitted trend line indicating that newer LEGO sets generally contain more pieces than older ones. While there is substantial variation in set size within each year, the overall upward trend suggests increasing complexity in LEGO sets over time. The second plot compares themes by their median number of pieces, focusing on themes with a sufficient number of sets. This comparison shows that some themes consistently feature larger sets, highlighting how theme design influences set size beyond simple time trends.",
+    "crumbs": [
+      "TidyTuesday",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Homework 02</span>"
+    ]
+  },
+  {
     "objectID": "pcl/pcl.html",
     "href": "pcl/pcl.html",
     "title": "Pre-Class Learning Summaries",
@@ -50,7 +116,7 @@
     "text": "R",
     "crumbs": [
       "Pre-Class Learnings",
-      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Pre-Class Learning Summaries</span>"
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Pre-Class Learning Summaries</span>"
     ]
   },
   {
@@ -61,7 +127,7 @@
     "text": "Quarto\n\n\n\nfrom qmd4sci.njtierney.com",
     "crumbs": [
       "Pre-Class Learnings",
-      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Pre-Class Learning Summaries</span>"
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Pre-Class Learning Summaries</span>"
     ]
   },
   {
@@ -72,7 +138,7 @@
     "text": "Add content here",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>6</span>  <span class='chapter-title'>ICA Sample 1</span>"
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>ICA Sample 1</span>"
     ]
   },
   {
@@ -83,7 +149,7 @@
     "text": "Add content here",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>7</span>  <span class='chapter-title'>ICA Sample 2</span>"
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>ICA Sample 2</span>"
     ]
   },
   {
@@ -94,7 +160,7 @@
     "text": "Exercise\nCarryout the following steps to clean and save the San Francisco Weather data. Make sure to download and add the data file to your portfolio repository as instructed.\nCodelibrary(tidyverse)\nweather &lt;- read_csv(\"data/raw/weather.csv\")\nCodeweather_clean &lt;- weather |&gt; \n    mutate(PrecipYr = na_if(PrecipYr, 99999))\n\n\nweather_clean &lt;- weather_clean |&gt; \n    mutate(dateInYear = yday(mdy(date)))\n\nweather |&gt; \n    mutate(month_name = month.abb[Month]) |&gt; head()\n\n# A tibble: 6 × 19\n  Month   Day   Low  High NormalLow NormalHigh RecordLow LowYr RecordHigh HiYear\n  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt;  &lt;dbl&gt;\n1    11    20    48    55        48         62        35  1964         69   2005\n2     6    16    52    68        53         70        46  1952         90   1961\n3     5     9    47    63        50         66        41  1950         88   1993\n4    10    26    47    69        52         69        39  1954         89   2003\n5     9    27    55    82        55         73        47  1955         96   2010\n6     7     6    52    70        54         71        47  1953         86   1957\n# ℹ 9 more variables: Precip &lt;dbl&gt;, RecordPrecip &lt;dbl&gt;, PrecipYr &lt;dbl&gt;,\n#   date &lt;chr&gt;, Record &lt;lgl&gt;, RecordText &lt;chr&gt;, RecordP &lt;lgl&gt;, CulmPrec &lt;dbl&gt;,\n#   month_name &lt;chr&gt;\nCodewrite_csv(weather_clean, file = \"data/processed/weather_clean.csv\")",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Cleaning SFO Weather Data</span>"
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>Cleaning SFO Weather Data</span>"
     ]
   },
   {
@@ -105,7 +171,7 @@
     "text": "Read in the weather data in this file with the correct relative file path after you move it to the instructed location.\nThere is a variable that has values that don’t make sense in the data context. Figure out which variable this is and clean it up by making those values missing using na_if().\nCreate a variable called dateInYear that indicates the day of the year (1-365) for each case. (Jan 1 should be 1, and Dec 31 should be 365).\nCreate a variable called month_name that shows the 3-letter abbreviation for each case.\nSave the wrangled data to the data/processed/ folder using write_csv(). Name this file weather_clean.csv. Look up the documentation for this function by typing ?write_csv in the Console. You’ll need to write an appropriate relative path.",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Cleaning SFO Weather Data</span>"
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>Cleaning SFO Weather Data</span>"
     ]
   },
   {
@@ -116,7 +182,7 @@
     "text": "🧩 Learning Goals\nBy the end of this lesson, you should be able to:",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>9</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
     ]
   },
   {
@@ -127,7 +193,7 @@
     "text": "Navigate ggplot2 reference page to find needed functions for a desired visualization\nNavigate the different sections of a function help page to construct desired plot features, in particular,\n\nNavigate the Usage section to identify arguments that must be set\nNavigate the Arguments section to understand how arguments work\nNavigate the Aesthetics section to learn how plot appearance can be controlled\nNavigate the Examples section for some usage examples\n\n\nIdentify when to use different data arguments within ggplot() and geom_() layers",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>9</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
     ]
   },
   {
@@ -138,7 +204,7 @@
     "text": "Introduction 1\n\nIn this lesson, we are going to recreate NYTimes 2015 Temperature Visualization (html) using data from San Francisco (SFO) in 2011.\n\n\nScreenshot of NYTimes 2015 Temperature Visualization",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>9</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
     ]
   },
   {
@@ -149,7 +215,7 @@
     "text": "Reading Data\nRun the code chunk below to load the tidyverse package and read in the San Francisco weather data.\n\nCodelibrary(tidyverse)\nweather &lt;- read_csv(\"https://mac-stat.github.io/data/sfo_weather.csv\")",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>9</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
     ]
   },
   {
@@ -160,7 +226,7 @@
     "text": "Understanding Data\nBelow is the codebook of the data. Familiarize yourself with the meaning of each variable. Use the codebook as a reference when using the data.\n\n\nMonth: Month of the year (1-12)\n\nDay: Day within the month (1-31)\n\nLow/High: Low/high temperature this day\n\nNormalLow/NormalHigh: Typical low/high temperature for this day of the year\n\nRecordLow/RecordHigh: Record low/high temperature for this day of the year\n\nLowYr/HighYr: Year in which the record low/high was observed\n\nPrecip: Amount of precipitation (inches) this day\n\nRecordPrecip: Record amount of precipitation for this day of the year\n\nPrecipYr: Year in which the record precipitation was observed\n\ndate: The actual date in 2011 for this day in YYYY-MM-DD format\n\ndateInYear: What day of the year is it? (1-365)\n\nRecord: Logical (TRUE/FALSE) indicating whether this day had a high temperature record\n\nRecordText: Text that displays the record high for this day (\"Record high: ##\")\n\nRecordP: Logical (TRUE/FALSE) indicating whether this day had a precipitation record\n\nCulmPrec: Cumulative precipitation for the month up to this day",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>9</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
     ]
   },
   {
@@ -171,7 +237,7 @@
     "text": "Exercise 1\nExamine the NYTimes 2015 Temperature Visualization (html) then answer the following questions.\nData Storytelling\n\nRelate the intro paragraph: “Scientists declared that 2015 was Earth’s hottest year on record…” to the design of the visualization. In particular, based on the intro paragraph,\n\nWhat key message/claim does NYTimes want readers to be able to explore?\nHow did this goal inform what information is displayed in the visualization?\n\n\n\nAesthetic Mapping\n\nWhat specific variables (from the data codebook) underlie the visualization?\nHow do these variables map to aesthetics of the visual elements, eg, position, size, shape, and color of glyphs?\n\nIt shows that 2015 temperatures were unusually hot compared to normal and close to (or breaking) historical records.\nIt layers record, normal, and actual daily temperature ranges across the year so deviations from normal and record-breaking days are easy to see.",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>9</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
     ]
   },
   {
@@ -182,7 +248,7 @@
     "text": "Exercise 2\nNavigate the Geoms section of the ggplot2 reference page to find a geom that corresponds to the visual elements in the temperature plot. Using both the small thumbnail visuals on the right and the names of the geom’s, brainstorm some possibilities for geom’s you might use to recreate the temperature visualization.\n\n\n\n\n\n\nNoteNavigating Documentation / Reference Pages\n\n\n\nYou need to navigate the geoms further by opening up their reference pages to understand if a particular geom is suitable for our task. Let’s look at the geom_point documentation page to learn how to read a documentation page..\nThe Usage section shows all of the possible inputs (arguments) to the geom. These are all of the ways that a geom can be customized. Just looking at the argument names can help give a hint as to what arguments might fit our needs.\nThe Arguments section, on the other hand, explains in detail what each argument does and the possible values the argument can take. The mapping, data, and ... arguments will be the most commonly used by far.\n\n\nmapping is the argument that is being used when we specify which variables should link or map to the plot aesthetics (the code inside aes()).\n\ndata is the argument where we specify the dataset containing the variables that the geom is using.\n\n... is used for fixed aesthetics (ones that don’t correspond to a variable), eg, to set the color of all points, we use color = \"red\" and to set the size of all points, we use size = 3.\n\nThe Aesthetics section of a geom documentation page gives information on how the visual elements of the geom correspond to data. For example, the geom_point documentation page shows that x and y aesthetics are available. It also shows some new aesthetics like stroke.\n\n\n\n\n\n\n\n\nNotedata Argument\n\n\n\nPreviously you have used one dataset per plot by specifying that as the first argument of ggplot(). However, multiple data sets can be passed into ggplot as shown in the example below.\n\nCodedata(diamonds)\n\ndiamonds_avg_price &lt;- diamonds |&gt;\n  group_by(carat) |&gt;\n  summarize(avg_price = mean(price)) |&gt;\n  arrange(carat)\ndiamonds_avg_price &lt;- diamonds_avg_price[seq(1, nrow(diamonds_avg_price), 3), ]\n\nggplot(diamonds, aes(x = carat, y = price)) +\n  geom_point() +\n  geom_point(\n    data = diamonds_avg_price,\n    aes(x = carat, y = avg_price),\n    color = \"deepskyblue\",\n    size = 3\n  )\n\n\n\n\n\n\n\n\n\nLook at the geom_linerange documentation page and start off your temperature visualization with the record lows and highs. Your plot should look like the one below. The hex code of the used light tan color is #ECEBE3.\n\n\nSFO Weather Records in 2011\n\n\nCodeggplot(weather) +\n    theme_classic()\n\n\n\n\n\n\n\n\n\n\n\n\n\nTipKeyboard Shortcuts\n\n\n\nAs you work on this plot, try to use some new keyboard shortcuts. Focus on the following:\n\nInsert code chunk: Ctrl+Alt+I (Windows). Option+Command+I (Mac).\nRun current code chunk: Ctrl+Shift+Enter (Windows). Command+Shift+Return (Mac).\nRun current line/currently selected lines: Ctrl+Enter (Windows). Command+Return (Mac).",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>9</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
     ]
   },
   {
@@ -193,7 +259,7 @@
     "text": "Exercise 3\nIn your visualization, also display the usual temperatures (NormalLow and NormalHigh) and actual 2011 temperatures (Low and High). Your plot should look like the one below. The hex code of the color used for the usual temperatures is \"#C8B8BA\" and for the color used for actual temperatures is \"#A90248\".\n\n\nSFO observed, Average, and Record Daily Temperatures in 2011\n\n\nCodeggplot(weather, aes(x = dateInYear)) +\n  geom_linerange(aes(ymin = RecordLow, ymax = RecordHigh), color = \"#ECEBE3\", linewidth = 2) +\n  geom_linerange(aes(ymin = NormalLow, ymax = NormalHigh), color = \"#C8B8BA\", linewidth = 2) +\n  geom_linerange(aes(ymin = Low, ymax = High), color = \"#A90248\", linewidth = 2) +\n  theme_classic() +\n  labs(x = NULL, y = NULL)\n\n\n\n\n\n\n\n\n\n\n\n\n\nTipFiner Control\n\n\n\nIf you’d like finer control of the width of these lines/rectangles, check out the geom_rect documentation page.",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>9</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
     ]
   },
   {
@@ -204,7 +270,7 @@
     "text": "Exercise 4\nRecreate the visual demarcations of the months by adding vertical lines separating the months. Brainstorm how we might draw those vertical lines. What geom might we use? What subset of the data might we use in that geom layer to draw lines only at the month divisions?\n\nCodemonth_starts &lt;- weather |&gt;\n  group_by(Month) |&gt;\n  summarize(start = min(dateInYear), .groups = \"drop\") |&gt;\n  filter(Month != 1)\n\nggplot(weather, aes(x = dateInYear)) +\n  geom_linerange(aes(ymin = RecordLow, ymax = RecordHigh), color = \"#ECEBE3\", linewidth = 2) +\n  geom_linerange(aes(ymin = NormalLow, ymax = NormalHigh), color = \"#C8B8BA\", linewidth = 2) +\n  geom_linerange(aes(ymin = Low, ymax = High), color = \"#A90248\", linewidth = 2) +\n  geom_vline(data = month_starts, aes(xintercept = start), linewidth = 0.4) +\n  theme_classic() +\n  labs(x = NULL, y = NULL)",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>9</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
     ]
   },
   {
@@ -215,7 +281,7 @@
     "text": "Exercise 5\nChange the x-axis labels so that the month names display in the center of each month’s slice of the plot.\n\n\n\n\n\n\nTipMonth Names\n\n\n\nR has built-in variables called month.abb and month.name that contain abbreviated and full month names.\n\n\nTry to figuring out this new challenge using search engines and LLMs:\n\nSearch Engines. Use Google to search for possible solutions using the jargon that is most likely to return the most relevant results. Record search queries and your thought process in selecting which search results to look at first.\nLLMs. Use ChatGPT or Gemini with prompts that will most efficiently get you the desired results. Record the chat prompts used and output given. Evaluate the output. Do you fully understand the code generated? How can you tell that the generated code is correct?\n\n\nCodemonth_centers &lt;- weather |&gt;\n  group_by(Month) |&gt;\n  summarize(\n    start = min(dateInYear),\n    end = max(dateInYear),\n    mid = (start + end) / 2,\n    .groups = \"drop\"\n  )\n\nggplot(weather, aes(x = dateInYear)) +\n  geom_linerange(aes(ymin = RecordLow, ymax = RecordHigh), color = \"#ECEBE3\", linewidth = 2) +\n  geom_linerange(aes(ymin = NormalLow, ymax = NormalHigh), color = \"#C8B8BA\", linewidth = 2) +\n  geom_linerange(aes(ymin = Low, ymax = High), color = \"#A90248\", linewidth = 2) +\n  geom_vline(\n    data = month_centers |&gt; filter(Month != 1),\n    aes(xintercept = start),\n    linewidth = 0.4\n  ) +\n  scale_x_continuous(\n    breaks = month_centers$mid,\n    labels = month.abb[month_centers$Month],\n    expand = c(0, 0)\n  ) +\n  theme_classic() +\n  labs(x = NULL, y = NULL)",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>9</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
     ]
   },
   {
@@ -226,7 +292,7 @@
     "text": "Exercise 6\nCreate a precipitation plot that looks like the following. Note that\n\nThe triangles point to precipitation records–refer to the data codebook above for the RecordP variable.\nThe numbers on the plot indicate the total precipitation for the month–search the hjust and vjust options to adjust the alignment of the numbers.\nThe blue and tan colors hex codes are \"#32a3d8\" and \"#ebeae2\", respectively.\n\n\n\nSFO Precipitation in 2011\n\n\nCodeymax &lt;- max(weather$Precip, na.rm = TRUE)\n\nmonth_centers_p &lt;- weather |&gt;\n  group_by(Month) |&gt;\n  summarize(\n    start = min(dateInYear),\n    end = max(dateInYear),\n    mid = (start + end) / 2,\n    month_total = max(CulmPrec, na.rm = TRUE),\n    .groups = \"drop\"\n  )\n\nmonth_starts_p &lt;- month_centers_p |&gt; filter(Month != 1)\n\nggplot(weather, aes(x = dateInYear, y = Precip)) +\n  geom_col(aes(fill = RecordP), width = 1) +\n  scale_fill_manual(values = c(\"FALSE\" = \"#ebeae2\", \"TRUE\" = \"#32a3d8\"), guide = \"none\") +\n  geom_point(\n    data = weather |&gt; filter(RecordP),\n    aes(x = dateInYear, y = Precip),\n    shape = 17,\n    size = 2.5,\n    color = \"#32a3d8\"\n  ) +\n  geom_vline(data = month_starts_p, aes(xintercept = start), linewidth = 0.4) +\n  geom_text(\n    data = month_centers_p,\n    aes(x = mid, y = ymax * 1.10, label = month_total),\n    vjust = 0\n  ) +\n  scale_x_continuous(\n    breaks = month_centers_p$mid,\n    labels = month.abb[month_centers_p$Month],\n    expand = c(0, 0)\n  ) +\n  coord_cartesian(ylim = c(0, ymax * 1.18), clip = \"off\") +\n  theme_classic() +\n  labs(x = NULL, y = NULL)",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>9</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
     ]
   },
   {
@@ -237,7 +303,7 @@
     "text": "Done!\n\nCheck the ICA Instructions for how to (a) push your code to GitHub and (b) update your portfolio website",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>9</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
     ]
   },
   {
@@ -248,7 +314,7 @@
     "text": "The exercise in this lesson are inspired by an assignment from the Concepts in Computing with Data course at UC Berkeley taught by Dr. Deborah Nolan.↩︎",
     "crumbs": [
       "In-Class Activities",
-      "<span class='chapter-number'>9</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>3 Adv Data Viz</span>"
     ]
   },
   {
@@ -259,7 +325,7 @@
     "text": "Add content here",
     "crumbs": [
       "Extras",
-      "<span class='chapter-number'>10</span>  <span class='chapter-title'>Extra Sample 1</span>"
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>Extra Sample 1</span>"
     ]
   },
   {
@@ -270,7 +336,7 @@
     "text": "Add content here",
     "crumbs": [
       "Extras",
-      "<span class='chapter-number'>11</span>  <span class='chapter-title'>Extra Sample 2</span>"
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>Extra Sample 2</span>"
     ]
   }
 ]
