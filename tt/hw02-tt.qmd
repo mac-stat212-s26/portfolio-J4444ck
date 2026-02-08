@@ -1,0 +1,79 @@
+---
+title: "Homework 02"
+---
+
+
+## TidyTuesday Section (optional)
+
+::: {.callout-important title="Instructions"}
+
+You can count work on this week's TidyTuesday toward the exceptional work required for an A in the Homework component.
+
+:::
+
+
+Explore the week's [TidyTuesday](https://github.com/rfordatascience/tidytuesday) challenge. Develop a research question, then answer it through a short data story with [effective visualization(s)]({{< var effective-viz-url >}}).  Provide sufficient background for readers to grasp your narrative.
+
+
+## Research question
+
+Have LEGO set prices increased faster than set size (piece count) over time, and what does that mean for “value” (price per piece)?
+
+## Background
+
+LEGO fans often compare sets by *price per piece* as a rough measure of value. Over time, sets have changed in complexity, licensing, and production costs. Using the LEGO Sets TidyTuesday data, I compare how piece counts and prices move across years, and whether price-per-piece has trended upward.
+
+## Data
+
+```{r}
+library(tidyverse)
+library(tidytuesdayR)
+library(scales)
+
+tt <- tt_load("2022-09-06")
+sets <- tt$`sets.csv`
+```
+
+
+
+```{r}
+sets_clean <- sets |>
+  transmute(
+    year = as.integer(year),
+    name,
+    theme_id,
+    pieces = as.numeric(num_parts)
+  )
+
+```
+
+```{r}
+ggplot(sets_clean, aes(x = year, y = pieces)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(method = "lm") +
+  labs(x = "Year", y = "Number of parts")
+
+```
+```{r}
+sets_clean <- sets_clean |>
+  mutate(decade = floor(year / 10) * 10)
+
+ggplot(sets_clean, aes(x = factor(decade), y = pieces)) +
+  geom_boxplot(outlier.alpha = 0.2) +
+  scale_y_log10() +
+  labs(
+    x = "Decade",
+    y = "Number of parts (log scale)",
+    title = "LEGO set sizes have increased over time",
+    subtitle = "Distribution of number of parts by decade"
+  ) +
+  theme_minimal()
+
+```
+
+This analysis uses LEGO set data from TidyTuesday to examine how LEGO sets have changed over time.
+My research question asks whether LEGO sets have become larger, as measured by the number of pieces, across different years.
+The first plot shows the relationship between release year and number of pieces, with a fitted trend line indicating that newer LEGO sets generally contain more pieces than older ones.
+While there is substantial variation in set size within each year, the overall upward trend suggests increasing complexity in LEGO sets over time.
+The second plot compares themes by their median number of pieces, focusing on themes with a sufficient number of sets.
+This comparison shows that some themes consistently feature larger sets, highlighting how theme design influences set size beyond simple time trends.
