@@ -70,6 +70,7 @@ book:
       - tt/2025-07-15.qmd
       - tt/hw01-tt.qmd
       - tt/hw02-tt.qmd
+      - tt/hw03-tt.qmd
 
     - part: "Pre-Class Learnings"
       chapters:
