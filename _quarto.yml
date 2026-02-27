@@ -75,6 +75,7 @@ book:
     - part: "Pre-Class Learnings"
       chapters:
       - pcl/pcl.qmd
+      - pcl/code_summary.qmd
 
     - part: "In-Class Activities"
       chapters:
@@ -85,6 +86,9 @@ book:
       - ica/04_adv_maps/04-adv-maps-1-notes.qmd
       - ica/06-wrangling-1-notes.qmd
       - ica/07-wrangling-2-notes.qmd
+      - ica/08-missing-data-notes.qmd
+      - ica/09-functions-notes.qmd
+      - ica/10-base-r-notes.qmd
 
     - part: "Extras"
       chapters:

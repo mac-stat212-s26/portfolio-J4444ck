@@ -1,0 +1,493 @@
+---
+title: "R Code Summary"
+format: html
+editor: visual
+---
+
+## Data visualization
+
+### `ggplot(data, aes(...)) + geom_*()`
+
+```{r}
+library(ggplot2)
+
+ggplot(mpg, aes(x = displ, y = hwy, color = class)) +
+  geom_point()
+```
+
+-   Maps variables to plot aesthetics (here: `displ` (engine displacement)→ x, `hwy` (highway miles per gallon)→ y, `class` → color).
+-   Draws a layer (here points) using a `geom_*()` function.
+
+### `facet_wrap(~var)`
+
+```{r}
+library(ggplot2)
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  facet_wrap(~ class)
+```
+
+-   Splits one plot into multiple panels by a categorical variable.
+-   Lets you compare patterns across groups on the same axes/scales.
+
+### `ggsave("file.png")`
+
+```{r}
+library(ggplot2)
+
+p <- ggplot(mpg, aes(displ, hwy)) + geom_point()
+ggsave("mpg_scatter.png", plot = p, width = 6, height = 4)
+```
+
+-   Saves a plot object (or last plot) to a file.
+-   Controls output size via `width` and `height`.
+
+## Spatial data
+
+### `rnaturalearth::ne_countries(..., returnclass="sf")`
+
+```{r}
+library(sf)
+library(rnaturalearth)
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+```
+
+-   Downloads country boundaries from Natural Earth.
+-   Returns an `sf` object (geometry + attribute columns).
+
+### `ggplot(sf_obj) + geom_sf()`
+
+```{r}
+library(ggplot2)
+
+ggplot(world) +
+  geom_sf()
+```
+
+-   Plots spatial geometries stored in an `sf` object.
+-   Automatically uses the geometry column for map drawing.
+
+### `coord_sf(crs = "...")`
+
+```{r}
+library(ggplot2)
+
+ggplot(world) +
+  geom_sf() +
+  coord_sf(crs = "EPSG:3857")
+```
+
+-   Reprojects spatial data to a chosen coordinate reference system (CRS).
+-   Changes the map’s appearance/distortion based on the projection.
+
+## Logical vectors
+
+### `if_else(condition, true, false)`
+
+```{r}
+library(dplyr)
+
+tibble(x = c(-2, 0, 5)) |>
+  mutate(sign = if_else(x >= 0, "nonnegative", "negative"))
+```
+
+-   Creates a new vector by choosing between two values based on a condition.
+-   Is type-stable (returns consistent type across all rows).
+
+### `case_when(...)`
+
+```{r}
+library(dplyr)
+
+tibble(score = c(95, 82, 71, 60)) |>
+  mutate(letter = case_when(
+    score >= 90 ~ "A",
+    score >= 80 ~ "B",
+    score >= 70 ~ "C",
+    TRUE        ~ "D"
+  ))
+```
+
+-   Applies multiple conditions in order; first match is used.
+-   Produces a single output column from many branching rules.
+
+### `is.na(x)`
+
+```{r}
+x <- c(1, NA, 3, NA)
+is.na(x)
+```
+
+-   Returns a logical vector indicating which elements are missing.
+-   Often used for filtering, counting, or conditional replacement.
+
+## Numbers
+
+### `count(x, wt = w)`
+
+```{r}
+library(dplyr)
+
+tibble(team = c("A","A","B","B"), points = c(3, 2, 5, 1)) |>
+  count(team, wt = points, name = "total_points")
+```
+
+-   Groups by a variable and sums weights (`wt`) instead of counting rows.
+-   Produces a compact frequency/total table.
+
+### `%/%` and `%%` (integer division + remainder)
+
+```{r}
+library(dplyr)
+
+time <- c(730, 945, 1205)  # HHMM format as numbers
+hour <- time %/% 100
+minute <- time %% 100
+tibble(time, hour, minute)
+```
+
+-   `%/%` divides and drops the remainder (integer division).
+-   `%%` returns the remainder (useful for splitting encoded numbers).
+
+### `lead()` / `lag()`
+
+```{r}
+library(dplyr)
+
+tibble(day = 1:5, value = c(10, 11, 15, 14, 20)) |>
+  mutate(change_from_prev = value - lag(value))
+```
+
+-   `lag()` shifts values down to compare with the previous row.
+-   `lead()` shifts values up to compare with the next row.
+
+### `log2()` / `log10()`
+
+```{r}
+x <- c(1, 10, 100, 1000)
+log10(x)
+```
+
+-   Transforms multiplicative scale data into additive scale.
+-   Helps compress large ranges and reveal proportional changes.
+
+## Strings
+
+### `str_c(...)`
+
+```{r}
+library(stringr)
+
+first <- c("Jack", "Ada")
+last  <- c("Dong", "Lovelace")
+
+str_c(first, " ", last)
+```
+
+-   Concatenates strings element-by-element (vectorized).
+-   Lets you control separators via explicit `" "` or `sep=` patterns.
+
+### `str_glue("...{var}...")`
+
+```{r}
+library(glue)
+
+name <- "Jack"
+score <- 98
+str_glue("{name} scored {score} on the exam.")
+```
+
+-   Builds strings using `{}` placeholders for variables/expressions.
+-   Makes readable “template” text for labels, messages, filenames, etc.
+
+### `str_length()` and `str_sub()`
+
+```{r}
+library(stringr)
+
+s <- c("Macalester", "psychology")
+str_length(s)
+str_sub(s, 1, 3)
+```
+
+-   `str_length()` counts characters in each string.
+-   `str_sub()` extracts substring by start/end positions.
+
+## Regular expressions
+
+### `str_detect(x, pattern)`
+
+```{r}
+library(stringr)
+
+emails <- c("a@macalester.edu", "b@gmail.com", "c@macalester.edu")
+str_detect(emails, "@macalester\\.edu$")
+```
+
+-   Returns TRUE/FALSE for whether each string matches the regex.
+-   Useful for filtering rows that contain a pattern.
+
+### `str_extract(x, pattern)`
+
+```{r}
+library(stringr)
+
+texts <- c("Order #A123", "Order #B55", "No order")
+str_extract(texts, "#[A-Z][0-9]+")
+```
+
+-   Extracts the first matching substring from each element.
+-   Returns `NA` when no match exists.
+
+### `str_replace()` / `str_replace_all()`
+
+```{r}
+library(stringr)
+
+x <- c("apple pie", "apple juice")
+str_replace(x, "apple", "orange")
+str_replace_all("a1 b2 c3", "[0-9]", "X")
+```
+
+-   Replaces first match (`str_replace`) or all matches (`str_replace_all`).
+-   Great for cleaning text, standardizing formats, removing junk characters.
+
+## Factors
+
+### `fct_reorder(f, x)`
+
+```{r}
+library(dplyr)
+library(forcats)
+library(ggplot2)
+
+df <- tibble(
+  group = factor(c("A","A","B","B","C","C")),
+  score = c(5, 6, 2, 3, 9, 8)
+)
+
+df |>
+  mutate(group = fct_reorder(group, score, .fun = mean)) |>
+  ggplot(aes(group, score)) +
+  geom_boxplot()
+```
+
+-   Reorders factor levels using a numeric summary (here mean score).
+-   Makes plots and tables follow a meaningful order.
+
+### `fct_relevel(f, "level")`
+
+```{r}
+library(forcats)
+
+f <- factor(c("medium","low","high","low"))
+fct_relevel(f, "low", "medium", "high")
+```
+
+-   Manually sets the order of factor levels.
+-   Useful when you want a specific “baseline” or display order.
+
+### `fct_infreq()` and `fct_rev()`
+
+```{r}
+library(forcats)
+
+f <- factor(c("cat","dog","dog","dog","bird"))
+fct_infreq(f)
+fct_rev(fct_infreq(f))
+```
+
+-   `fct_infreq()` orders levels from most frequent to least frequent.
+-   `fct_rev()` reverses the level order (often for plotting).
+
+### `fct_recode()` / `fct_collapse()`
+
+```{r}
+library(forcats)
+
+f <- factor(c("freshman","sophomore","junior","senior","senior"))
+
+fct_recode(f, "1st" = "freshman", "2nd" = "sophomore")
+
+fct_collapse(
+  f,
+  "underclass" = c("freshman","sophomore"),
+  "upperclass" = c("junior","senior")
+)
+```
+
+-   `fct_recode()` renames levels without changing grouping.
+-   `fct_collapse()` merges several levels into fewer categories.
+
+## Dates and times
+
+### `today()` / `now()` and `ymd()` / `ymd_hms()`
+
+```{r}
+library(lubridate)
+
+today()
+now()
+
+ymd("2026-02-20")
+ymd_hms("2026-02-20 14:30:00")
+```
+
+-   Gets current date/time (`today`, `now`) or parses strings into date objects.
+-   Converts text into proper date/datetime types for math and plotting.
+
+### `make_date()` / `make_datetime()`
+
+```{r}
+library(lubridate)
+
+make_date(2026, 2, 20)
+make_datetime(2026, 2, 20, 14, 30, 0)
+```
+
+-   Builds date/datetime from separate components.
+-   Helpful when your data has year/month/day in separate columns.
+
+### `floor_date()` / `ceiling_date()`
+
+```{r}
+library(lubridate)
+
+dt <- ymd_hms("2026-02-20 14:37:22")
+floor_date(dt, "hour")
+ceiling_date(dt, "hour")
+```
+
+-   Rounds date-times down/up to a specified unit (hour/day/week/etc.).
+-   Useful for aggregating by time bins.
+
+### `with_tz()` vs `force_tz()`
+
+```{r}
+library(lubridate)
+
+dt <- ymd_hms("2026-02-20 12:00:00", tz = "UTC")
+
+with_tz(dt, "America/Chicago")
+force_tz(dt, "America/Chicago")
+```
+
+-   `with_tz()` changes how the same instant is displayed in another time zone.
+-   `force_tz()` keeps clock time but changes the assumed time zone (different instant).
+
+## Missing values
+
+### `tidyr::fill(cols)`
+
+```{r}
+library(tidyr)
+library(dplyr)
+
+df <- tibble(group = c("A", NA, NA, "B", NA), value = 1:5)
+
+df |>
+  fill(group)
+```
+
+-   Fills missing values down (or up) using the nearest non-missing value.
+-   Useful for “merged-cell” style data.
+
+### `coalesce(x, 0)`
+
+```{r}
+library(dplyr)
+
+x <- c(1, NA, 3)
+coalesce(x, 0)
+```
+
+-   Replaces `NA` with the first non-missing value among arguments.
+-   Great for setting defaults (e.g., missing counts become 0).
+
+### `na_if(x, sentinel)`
+
+```{r}
+library(dplyr)
+
+x <- c(10, -99, 7, -99)
+na_if(x, -99)
+```
+
+-   Converts “special codes” into real `NA`.
+-   Makes summaries and plots treat those values as missing correctly.
+
+### `tidyr::complete(...)`
+
+```{r}
+library(tidyr)
+library(dplyr)
+
+df <- tibble(
+  student = c("A","A","B"),
+  week = c(1, 3, 1),
+  score = c(10, 12, 9)
+)
+
+df |>
+  complete(student, week = 1:3)
+```
+
+-   Creates rows for missing combinations of keys (implicit missing → explicit).
+-   Helps you see gaps and then fill/plot time series cleanly.
+
+### `anti_join(x, y)`
+
+```{r}
+library(dplyr)
+
+x <- tibble(id = c(1,2,3), name = c("a","b","c"))
+y <- tibble(id = c(2,3))
+
+anti_join(x, y, by = "id")
+```
+
+-   Returns rows in `x` whose keys do **not** appear in `y`.
+-   Useful for finding mismatches or missing records.
+
+## Joins
+
+### `left_join(x, y, by = ...)`
+
+```{r}
+library(dplyr)
+
+students <- tibble(id = c(1,2,3), name = c("A","B","C"))
+grades   <- tibble(id = c(1,3), grade = c(90, 85))
+
+left_join(students, grades, by = "id")
+```
+
+-   Keeps all rows from `x` and adds matching columns from `y`.
+-   Unmatched rows get `NA` for new columns.
+
+### `inner_join()` / `full_join()` / `right_join()`
+
+```{r}
+library(dplyr)
+
+inner_join(students, grades, by = "id")
+full_join(students, grades, by = "id")
+right_join(students, grades, by = "id")
+```
+
+-   `inner_join()` keeps only rows with matches in both tables.
+-   `full_join()` keeps everything from both; `right_join()` keeps all rows of `y`.
+
+### `semi_join()` / `anti_join()`
+
+```{r}
+library(dplyr)
+
+semi_join(students, grades, by = "id")
+anti_join(students, grades, by = "id")
+```
+
+-   `semi_join()` filters `x` to rows that have a match in `y` (no extra columns added).
+-   `anti_join()` filters `x` to rows that do **not** have a match in `y`.
