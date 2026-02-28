@@ -1,0 +1,90 @@
+---
+title: "Homework 04"
+format: 
+  html: 
+    embed-resources: true
+---
+
+
+## TidyTuesday Section (optional)
+
+::: {.callout-important title="Instructions"}
+
+You can count work on this week's TidyTuesday toward the exceptional work required for an A in the Homework component.
+
+:::
+
+
+Explore the week's [TidyTuesday](https://github.com/rfordatascience/tidytuesday) challenge. Develop a research question, then answer it through a short data story with [effective visualization(s)]({{< var effective-viz-url >}}).  Provide sufficient background for readers to grasp your narrative.
+
+Research Question:
+
+How has SFI’s total research funding changed over time, and which types of research programmes received the largest commitments?
+\
+\
+Back ground:
+Science Foundation Ireland (SFI) was Ireland’s primary public funder of STEM research from 2000 until its dissolution in 2024, investing in high-impact scientific and engineering research intended to drive innovation, economic growth, and global competitiveness. Through competitive, peer-reviewed grants, SFI supported individual investigators, large collaborative research centres, and strategic national initiatives across universities and research institutions. Examining SFI’s grant commitments over time helps us understand how Ireland’s research priorities evolved, how public investment in science changed across economic cycles, and which types of programmes received the greatest emphasis.
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(readr)
+
+
+sfi<- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2026/2026-02-24/sfi_grants.csv')
+
+
+
+sfi_clean <- sfi %>%
+  mutate(
+    start_date = as.Date(start_date),
+    year = year(start_date),
+    funding_amount = current_total_commitment
+  )
+
+
+funding_by_year <- sfi_clean %>%
+  group_by(year) %>%
+  summarise(total_funding = sum(funding_amount, na.rm = TRUE))
+
+
+funding_by_programme <- sfi_clean %>%
+  group_by(year, programme_name) %>%
+  summarise(total_funding = sum(funding_amount, na.rm = TRUE)) %>%
+  ungroup()
+```
+\
+\
+Yearly founding plan:
+```{r}
+funding_by_year %>%
+  ggplot(aes(x = year, y = total_funding)) +
+  geom_line(color = "steelblue", size = 1.2) +
+  geom_point(color = "darkblue") +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "€")) +
+  labs(
+    title = "Total SFI Research Funding Over Time",
+    subtitle = "Annual commitments by Science Foundation Ireland, 2000–2023",
+    x = "Year",
+    y = "Total Funding (€)"
+  ) +
+  theme_minimal()
+```
+It shows whether Ireland’s investment in research has grown steadily, plateaued, or fluctuated across different economic cycles.
+\
+\
+Major Programme Funding Over Time:
+```{r,fig.width=20, fig.height=7}
+funding_by_programme %>%
+  ggplot(aes(x = year, y = total_funding, color = programme_name)) +
+  geom_line() +
+  labs(
+    title = "SFI Funding by Programme",
+    subtitle = "How research funding streams have evolved over time",
+    x = "Year",
+    y = "Funding (€)",
+    color = "Programme"
+  ) +
+  theme_minimal()
+```
+Funding has generally increased over time, reflecting greater national emphasis on research and innovation. Some programmes (e.g., investigator awards or strategic partnerships) may have accelerated growth, suggesting shifts in strategic priorities. Additionally, changes around major economic or policy moments (e.g., research strategy launches) might coincide with jumps in funding.

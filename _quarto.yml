@@ -71,6 +71,7 @@ book:
       - tt/hw01-tt.qmd
       - tt/hw02-tt.qmd
       - tt/hw03-tt.qmd
+      - tt/hw04-tt.qmd
 
     - part: "Pre-Class Learnings"
       chapters:
