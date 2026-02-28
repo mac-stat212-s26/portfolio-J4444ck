@@ -1,5 +1,8 @@
 ---
 title: "Homework 01"
+format: 
+  html: 
+    embed-resources: true
 ---
 
 
