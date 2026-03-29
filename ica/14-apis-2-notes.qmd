@@ -17,6 +17,10 @@ By the end of this lesson, you should be able to:
 library(tidyverse)
 library(httr2)
 library(xml2)
+library(bench)
+library(dplyr)
+library(purrr)
+library(ggplot2)
 ```
 
 
@@ -125,7 +129,7 @@ Read in the key with the following code:
 
 
 ```{r read_census_api_key2}
-#| eval: false
+
 census_api_key <- readLines("census_api_key.txt")
 census_api_key <- trimws(census_api_key)
 ```
@@ -217,7 +221,7 @@ Once you have signed up, verified your email, log back in to https://developer.n
 As with your census API key, save this key in a `.txt` file, and read it in and store this in a variable called `times_key`.  📌 Again, don't commit this file to GitHub.  Make Git ignores it via GitHub Desktop (**Right click** the file --> select **Ignore file (add to .gitignore)**.
 
 ```{r nyt_key_2}
-#| eval: false
+#| 
 times_key <- read_lines("nyt_api_key.txt")
 ```
 
@@ -246,7 +250,7 @@ The scheme, hostname, and path (`http://api.nytimes.com/svc/search/v2/articlesea
 We can use the `httr2` package to build up a full URL from its parts:
 
 ```{r httr2_nyt}
-#| eval: false
+#| 
 req <- request("https://api.nytimes.com") |> 
     req_url_path_append("svc") |> 
     req_url_path_append("search") |> 
@@ -259,7 +263,7 @@ req <- request("https://api.nytimes.com") |>
 We can write a function to generate the URL for a user-specified query:
 
 ```{r create_nyt_url}
-#| eval: false
+#| 
 create_nyt_url <- function(query, key) {
     request("https://api.nytimes.com") |> 
         req_url_path_append("svc") |> 
@@ -278,7 +282,7 @@ Let's use this function to find articles related to:
 Let's see how these queries are translated into the URLs:
 
 ```{r use_create_nyt_url}
-#| eval: false
+
 req_fb <- create_nyt_url(query = "Ferris Bueller's Day Off", key = times_key)
 req_pt <- create_nyt_url(query = "Penn & Teller", key = times_key)
 ```
@@ -287,7 +291,7 @@ We can use `req_perform()` to send out the request and `resp_body_json()` to par
 
 
 ```{r nyt_responses}
-#| eval: false
+
 resp_pt <- req_pt |> req_perform() |> resp_body_json(simplifyVector = TRUE)
 ```
 
@@ -309,7 +313,7 @@ Using base R subsetting, we can access elements of a list in three ways:
 - By *position* with double square brackets `[[`:
 
 ```{r list_access1}
-#| eval: false
+#| 
 # This gets the first element of the list
 resp_pt[[1]]
 ```
@@ -318,7 +322,7 @@ resp_pt[[1]]
 - By *name* with double square brackets `[[`: (note that list elements are not always named, so this won't always be possible)
 
 ```{r list_access2}
-#| eval: false
+#| 
 # Accessing by name directly
 resp_pt[["status"]]
 
@@ -330,14 +334,14 @@ resp_pt[[which_element]]
 - By *name* with a dollar sign `$`: (Helpful tip: For this mode of access, RStudio allows tab completion to fill in the full name)
 
 ```{r list_access3}
-#| eval: false
+#| 
 resp_pt$status
 ```
 
 We can retrieve these *nested* attributes by sequentially accessing the object keys from the outside in. For example, the `meta` element would be accessed as follows:
 
 ```{r list_access4}
-#| eval: false
+#| 
 resp_pt$response$meta
 ```
 
