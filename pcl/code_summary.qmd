@@ -4,6 +4,33 @@ format: html
 editor: visual
 ---
 
+```{r}
+
+# This setup chunk makes the document safer to run.
+# It loads packages only if they are installed.
+
+pkg_available <- function(pkg) {
+  requireNamespace(pkg, quietly = TRUE)
+}
+
+load_pkg <- function(pkg) {
+  if (pkg_available(pkg)) {
+    suppressPackageStartupMessages(library(pkg, character.only = TRUE))
+    TRUE
+  } else {
+    message("Package not installed: ", pkg)
+    FALSE
+  }
+}
+
+load_pkg("dplyr")
+load_pkg("ggplot2")
+load_pkg("purrr")
+load_pkg("tibble")
+load_pkg("stringr")
+load_pkg("tidyr")
+```
+
 ## Data visualization
 
 ### `ggplot(data, aes(...)) + geom_*()`
@@ -491,3 +518,5 @@ anti_join(students, grades, by = "id")
 
 -   `semi_join()` filters `x` to rows that have a match in `y` (no extra columns added).
 -   `anti_join()` filters `x` to rows that do **not** have a match in `y`.
+
+## 

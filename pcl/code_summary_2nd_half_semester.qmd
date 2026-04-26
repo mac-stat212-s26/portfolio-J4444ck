@@ -1,0 +1,661 @@
+---
+title: "R Code Summary: Activities 11–19"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+```{r setup}
+# This setup chunk makes the document safer to run.
+# It loads packages only if they are installed.
+
+pkg_available <- function(pkg) {
+  requireNamespace(pkg, quietly = TRUE)
+}
+
+load_pkg <- function(pkg) {
+  if (pkg_available(pkg)) {
+    suppressPackageStartupMessages(library(pkg, character.only = TRUE))
+    TRUE
+  } else {
+    message("Package not installed: ", pkg)
+    FALSE
+  }
+}
+
+load_pkg("dplyr")
+load_pkg("ggplot2")
+load_pkg("purrr")
+load_pkg("tibble")
+load_pkg("stringr")
+load_pkg("tidyr")
+```
+
+## Activity 11: Iteration I
+
+### `for` loop over a vector
+
+```{r}
+groups <- c("group1", "group2", "group3")
+
+for (i in seq_along(groups)) {
+  print(groups[i])
+}
+```
+
+Use `seq_along()` when looping through a vector.
+
+### Store output from a loop
+
+```{r}
+char_storage <- vector("character", length = 3)
+num_storage <- vector("numeric", length = 3)
+list_storage <- vector("list", length = 3)
+
+for (i in seq_len(3)) {
+  char_storage[i] <- paste0("Number: ", i)
+  num_storage[i] <- 2 * i
+  list_storage[[i]] <- i
+}
+
+char_storage
+num_storage
+list_storage
+```
+
+Create storage before the loop when you want to save output.
+
+### Loop over rows of a data frame
+
+```{r}
+small_data <- tibble::tibble(a = 1:2, b = 2:3, c = 4:5)
+
+for (r in seq_len(nrow(small_data))) {
+  print(small_data[r, ])
+}
+```
+
+Use `seq_len(nrow(data))` when looping through rows.
+
+### `across()` for multiple columns
+
+```{r}
+if (pkg_available("dplyr") && pkg_available("ggplot2")) {
+  ggplot2::diamonds |>
+    dplyr::mutate(
+      dplyr::across(c(carat, x, y, z), ~ round(.x, digits = 1))
+    ) |>
+    dplyr::select(carat, x, y, z) |>
+    head()
+}
+```
+
+`across()` applies the same function to many columns.
+
+### `across()` with summary functions
+
+```{r}
+if (pkg_available("dplyr") && pkg_available("ggplot2")) {
+  ggplot2::diamonds |>
+    dplyr::group_by(cut) |>
+    dplyr::summarize(
+      dplyr::across(
+        c(carat, price),
+        list(mean = ~ mean(.x, na.rm = TRUE), sd = ~ sd(.x, na.rm = TRUE)),
+        .names = "{.col}_{.fn}"
+      ),
+      .groups = "drop"
+    )
+}
+```
+
+## Activity 12: Iteration II
+
+### Anonymous functions
+
+```{r}
+x <- c(1, 2, 3, NA, 5)
+
+median_no_na <- function(x) median(x, na.rm = TRUE)
+median_no_na(x)
+
+# Anonymous function version
+(function(x) median(x, na.rm = TRUE))(x)
+```
+
+An anonymous function is a throw-away function with no saved name.
+
+### `map()` returns a list
+
+```{r}
+if (pkg_available("purrr")) {
+  numbers <- list(a = 1:3, b = 4:6, c = 7:9)
+  purrr::map(numbers, mean)
+}
+```
+
+Use `map()` when you want output saved.
+
+### Typed map functions
+
+```{r}
+if (pkg_available("purrr")) {
+  numbers <- list(a = 1:3, b = 4:6, c = 7:9)
+  purrr::map_dbl(numbers, mean)
+  purrr::map_chr(numbers, ~ paste(.x, collapse = ", "))
+}
+```
+
+`map_dbl()`, `map_chr()`, and similar functions control the output type.
+
+### `map2()` and `pmap()`
+
+```{r}
+if (pkg_available("purrr")) {
+  purrr::map2_chr(
+    c("A", "B", "C"),
+    c(90, 85, 92),
+    ~ paste(.x, "scored", .y)
+  )
+
+  student_scores <- tibble::tibble(
+    name = c("A", "B", "C"),
+    exam = c("Exam 1", "Exam 1", "Exam 1"),
+    score = c(90, 85, 92)
+  )
+
+  purrr::pmap_chr(student_scores, ~ paste(..1, ..2, ..3))
+}
+```
+
+`map()` uses one input, `map2()` uses two inputs, and `pmap()` uses many inputs.
+
+### `walk()` for side effects
+
+```{r}
+if (pkg_available("purrr")) {
+  purrr::walk(c("Hello", "from", "walk"), print)
+}
+```
+
+Use `walk()` when you want an action, like printing or saving a file, but do not need returned output.
+
+### Nested data and models
+
+```{r}
+if (pkg_available("dplyr") && pkg_available("tidyr") && pkg_available("purrr")) {
+  mtcars_nested <- mtcars |>
+    tibble::rownames_to_column("car") |>
+    dplyr::group_by(cyl) |>
+    tidyr::nest()
+
+  mtcars_nested <- mtcars_nested |>
+    dplyr::mutate(model = purrr::map(data, ~ lm(mpg ~ wt + hp, data = .x)))
+
+  mtcars_nested
+}
+```
+
+This fits a separate model for each group.
+
+### `pluck()`, `keep()`, and `reduce()`
+
+```{r}
+if (pkg_available("purrr")) {
+  nested_list <- list(
+    a = list(value = 1),
+    b = list(value = 2),
+    c = list(value = 3)
+  )
+
+  purrr::pluck(nested_list, "b", "value")
+
+  purrr::keep(1:10, ~ .x > 5)
+
+  purrr::reduce(1:5, `+`)
+}
+```
+
+`pluck()` extracts deeply nested elements, `keep()` filters lists/vectors, and `reduce()` combines many values into one.
+
+## Activity 13: APIs I and JSON
+
+### JSON object to R
+
+```{r}
+if (pkg_available("jsonlite")) {
+  json_text <- '{"name": "Mario", "age": 32, "city": "New York"}'
+  jsonlite::fromJSON(json_text)
+}
+```
+
+JSON is a format for organizing data, often from APIs.
+
+### JSON array of objects to data frame
+
+```{r}
+if (pkg_available("jsonlite")) {
+  json_text <- '[
+    {"name": "Mario", "age": 32},
+    {"name": "Peach", "age": 21},
+    {"name": "Luigi", "age": 30}
+  ]'
+
+  jsonlite::fromJSON(json_text)
+}
+```
+
+A JSON array of similar objects often becomes a data frame in R.
+
+### Nested JSON to named list
+
+```{r}
+if (pkg_available("jsonlite")) {
+  json_text <- '{
+    "result_count": 3,
+    "results": [
+      {"_href": "url1", "_schema": "schema1", "type": "LogicalSwitchConfig"},
+      {"_href": "url2", "_schema": "schema2", "type": "LogicalSwitchConfig"},
+      {"_href": "url3", "_schema": "schema3", "type": "LogicalSwitchConfig"}
+    ]
+  }'
+
+  parsed <- jsonlite::fromJSON(json_text)
+  parsed$result_count
+  parsed$results
+}
+```
+
+This structure makes sense as a named list with two elements: `result_count` and `results`.
+
+## Activity 14: APIs II
+
+### URL parts
+
+```{r}
+url <- "https://www.tutorialspoint.com/cgi-bin/search.cgi?searchTerm=HTML#top"
+
+parts <- list(
+  scheme = "https://",
+  host = "www.tutorialspoint.com",
+  path = "/cgi-bin/search.cgi",
+  query = "searchTerm=HTML",
+  fragment = "#top"
+)
+
+parts
+```
+
+URLs commonly contain a scheme, host, file path, query, and optional fragment identifier.
+
+### URL encoding and decoding
+
+```{r}
+text <- "cats & dogs"
+encoded <- utils::URLencode(text, reserved = TRUE)
+decoded <- utils::URLdecode(encoded)
+
+encoded
+decoded
+```
+
+Encoding makes strings safe to use inside URLs.
+
+### Build and read from a simple API-style URL
+
+```{r}
+# This example is not evaluated online. It shows the usual pattern.
+base_url <- "https://api.example.com/data"
+query <- list(searchTerm = "HTML", limit = 10)
+
+api_url <- paste0(
+  base_url,
+  "?",
+  paste(names(query), query, sep = "=", collapse = "&")
+)
+
+api_url
+```
+
+A real API request usually combines a base URL, path, and query parameters.
+
+### `httr2` request pattern
+
+```{r}
+if (pkg_available("httr2")) {
+  request_example <- httr2::request("https://api.example.com") |>
+    httr2::req_url_path_append("data") |>
+    httr2::req_url_query(searchTerm = "HTML", limit = 10)
+
+  request_example
+}
+```
+
+Use `httr2::request()`, `req_url_path_append()`, and `req_url_query()` to build API requests.
+
+## Activity 15: Web scraping
+
+### HTML structure
+
+```{r}
+html_example <- "<h1 id='first'>A heading</h1>"
+html_example
+```
+
+In this example, `<h1 id='first'>` is the start tag, `id='first'` is the attribute, `A heading` is the content, and `</h1>` is the end tag.
+
+### CSS selector examples with local HTML
+
+```{r}
+if (pkg_available("rvest")) {
+  html <- rvest::read_html(
+    "<html>
+      <body>
+        <h1 id='title'>This is a heading</h1>
+        <p id='first'>This is a paragraph</p>
+        <p class='important'>This is an important paragraph</p>
+      </body>
+    </html>"
+  )
+
+  # Select all paragraph elements
+  html |>
+    rvest::html_elements("p") |>
+    rvest::html_text2()
+
+  # Select elements with class = 'important'
+  html |>
+    rvest::html_elements(".important") |>
+    rvest::html_text2()
+
+  # Select element with id = 'title'
+  html |>
+    rvest::html_element("#title") |>
+    rvest::html_text2()
+}
+```
+
+`p` selects paragraph tags, `.important` selects a class, and `#title` selects an ID.
+
+### Extract HTML attributes
+
+```{r}
+if (pkg_available("rvest")) {
+  html <- rvest::read_html(
+    "<html><body><a href='https://example.com'>Example link</a></body></html>"
+  )
+
+  html |>
+    rvest::html_element("a") |>
+    rvest::html_attr("href")
+}
+```
+
+Use `html_attr()` to get attributes such as links.
+
+## Activity 16: Databases and SQL
+
+### Connect to a local DuckDB database
+
+```{r}
+if (pkg_available("DBI") && pkg_available("duckdb") && pkg_available("dplyr")) {
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:")
+
+  DBI::dbWriteTable(con, "mtcars", mtcars, overwrite = TRUE)
+
+  mtcars_db <- dplyr::tbl(con, "mtcars")
+  mtcars_db
+
+  DBI::dbDisconnect(con, shutdown = TRUE)
+}
+```
+
+The first step for using a database in R is to establish a connection.
+
+### Use dplyr on a database table
+
+```{r}
+if (pkg_available("DBI") && pkg_available("duckdb") && pkg_available("dplyr")) {
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:")
+  DBI::dbWriteTable(con, "mtcars", mtcars, overwrite = TRUE)
+
+  mtcars_db <- dplyr::tbl(con, "mtcars")
+
+  big_cars <- mtcars_db |>
+    dplyr::filter(hp > 100) |>
+    dplyr::select(mpg, cyl, hp, wt)
+
+  big_cars |>
+    dplyr::show_query()
+
+  big_cars |>
+    dplyr::collect()
+
+  DBI::dbDisconnect(con, shutdown = TRUE)
+}
+```
+
+Use `collect()` only after filtering/selecting the data you need.
+
+### Basic SQL query
+
+```{r}
+if (pkg_available("DBI") && pkg_available("duckdb")) {
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = ":memory:")
+  DBI::dbWriteTable(con, "mtcars", mtcars, overwrite = TRUE)
+
+  DBI::dbGetQuery(con, "
+    SELECT mpg, cyl, hp, wt
+    FROM mtcars
+    WHERE hp > 100
+    ORDER BY mpg DESC
+    LIMIT 5
+  ")
+
+  DBI::dbDisconnect(con, shutdown = TRUE)
+}
+```
+
+SQL is used to query a subset of data from a database.
+
+## Activity 17: Presenting visualizations
+
+### Add clear labels
+
+```{r}
+if (pkg_available("ggplot2")) {
+  ggplot2::ggplot(mtcars, ggplot2::aes(x = wt, y = mpg)) +
+    ggplot2::geom_point() +
+    ggplot2::labs(
+      title = "Heavier cars tend to have lower gas mileage",
+      subtitle = "Example using the built-in mtcars data",
+      x = "Weight (1000 lbs)",
+      y = "Miles per gallon",
+      caption = "Data: mtcars"
+    )
+}
+```
+
+Good visualizations use clear titles, subtitles, axis labels, and captions.
+
+### Use faceting to compare groups
+
+```{r}
+if (pkg_available("ggplot2")) {
+  ggplot2::ggplot(mtcars, ggplot2::aes(x = wt, y = mpg)) +
+    ggplot2::geom_point() +
+    ggplot2::facet_wrap(~ cyl) +
+    ggplot2::labs(
+      title = "Weight and mileage by cylinder group",
+      x = "Weight (1000 lbs)",
+      y = "Miles per gallon"
+    )
+}
+```
+
+Facets split one plot into small multiples.
+
+### Reorder categories before plotting
+
+```{r}
+if (pkg_available("dplyr") && pkg_available("ggplot2") && pkg_available("forcats")) {
+  mtcars_summary <- mtcars |>
+    tibble::rownames_to_column("car") |>
+    dplyr::mutate(cyl = factor(cyl)) |>
+    dplyr::group_by(cyl) |>
+    dplyr::summarize(mean_mpg = mean(mpg), .groups = "drop") |>
+    dplyr::mutate(cyl = forcats::fct_reorder(cyl, mean_mpg))
+
+  ggplot2::ggplot(mtcars_summary, ggplot2::aes(x = cyl, y = mean_mpg)) +
+    ggplot2::geom_col() +
+    ggplot2::labs(x = "Cylinders", y = "Mean MPG")
+}
+```
+
+Ordering categories can make visual comparisons easier.
+
+## Activity 18: Interactive visualization
+
+### Simple Shiny app code
+
+```{r}
+# This chunk prints Shiny app code instead of launching an app during rendering.
+cat('
+library(shiny)
+library(ggplot2)
+
+ui <- fluidPage(
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("cyl", "Choose cylinders:", choices = unique(mtcars$cyl))
+    ),
+    mainPanel(
+      plotOutput("scatterplot")
+    )
+  )
+)
+
+server <- function(input, output) {
+  output$scatterplot <- renderPlot({
+    mtcars |>
+      dplyr::filter(cyl == input$cyl) |>
+      ggplot(aes(x = wt, y = mpg)) +
+      geom_point()
+  })
+}
+
+shinyApp(ui = ui, server = server)
+')
+```
+
+A Shiny app has a `ui` section and a `server` section.
+
+### Plotly from ggplot
+
+```{r}
+if (pkg_available("ggplot2") && pkg_available("plotly")) {
+  p <- ggplot2::ggplot(mtcars, ggplot2::aes(x = wt, y = mpg, color = factor(cyl))) +
+    ggplot2::geom_point() +
+    ggplot2::labs(color = "Cylinders")
+
+  plotly::ggplotly(p)
+}
+```
+
+`ggplotly()` turns many ggplot graphics into interactive graphics.
+
+## Activity 19: Code and data quality
+
+### DRY: do not repeat yourself
+
+```{r}
+if (pkg_available("dplyr")) {
+  mtcars |>
+    dplyr::summarize(
+      dplyr::across(c(mpg, hp, wt), ~ mean(.x, na.rm = TRUE))
+    )
+}
+```
+
+Use functions or `across()` instead of copying and pasting similar code.
+
+### Check missing values
+
+```{r}
+if (pkg_available("dplyr")) {
+  example_data <- tibble::tibble(
+    id = 1:4,
+    score = c(90, NA, 85, NA),
+    group = c("A", "A", NA, "B")
+  )
+
+  example_data |>
+    dplyr::summarize(
+      dplyr::across(dplyr::everything(), ~ sum(is.na(.x)))
+    )
+}
+```
+
+Always check missing values after reading or cleaning data.
+
+### Check joins with `anti_join()`
+
+```{r}
+if (pkg_available("dplyr")) {
+  students <- tibble::tibble(id = c(1, 2, 3), name = c("A", "B", "C"))
+  grades <- tibble::tibble(id = c(1, 3), grade = c(90, 85))
+
+  dplyr::anti_join(students, grades, by = "id")
+}
+```
+
+Use `anti_join()` to find rows that did not match.
+
+### Benchmark slow vs. fast code
+
+```{r}
+if (pkg_available("bench")) {
+  bench::mark(
+    slow = {
+      x <- integer()
+      for (i in 1:1000) {
+        x <- c(x, i)
+      }
+    },
+    fast = {
+      x <- vector("integer", length = 1000)
+      for (i in 1:1000) {
+        x[i] <- i
+      }
+    },
+    iterations = 5,
+    check = FALSE
+  )
+}
+```
+
+Pre-allocating storage is usually faster than growing an object inside a loop.
+
+## Quick reference
+
+| Topic                        | Use this                 |
+|------------------------------|--------------------------|
+| Repeat with saved output     | `map()` or `map_*()`     |
+| Repeat with side effect      | `walk()`                 |
+| Repeat across columns        | `across()`               |
+| Extract list element         | `[[ ]]` or `pluck()`     |
+| Filter list/vector           | `keep()`                 |
+| Combine many into one        | `reduce()`               |
+| Parse JSON                   | `jsonlite::fromJSON()`   |
+| Scrape HTML elements         | `rvest::html_elements()` |
+| Extract HTML text            | `rvest::html_text2()`    |
+| Extract HTML attribute       | `rvest::html_attr()`     |
+| Connect to database          | `DBI::dbConnect()`       |
+| Bring database result into R | `collect()`              |
+| Make ggplot interactive      | `plotly::ggplotly()`     |
+| Check unmatched rows         | `anti_join()`            |
