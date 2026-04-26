@@ -1,0 +1,144 @@
+---
+title: "Homework 03"
+format: 
+  html: 
+    embed-resources: true
+---
+
+
+## TidyTuesday Section (optional)
+
+::: {.callout-important title="Instructions"}
+
+You can count work on this week's TidyTuesday toward the exceptional work required for an A in the Homework component.
+
+:::
+
+
+Explore the week's [TidyTuesday](https://github.com/rfordatascience/tidytuesday) challenge. Develop a research question, then answer it through a short data story with [effective visualization(s)]({{< var effective-viz-url >}}).  Provide sufficient background for readers to grasp your narrative.
+
+Research Question
+
+How is the competition schedule structured during the 2026 Winter Olympics — and are medal events concentrated at specific points in time compared to training sessions?
+
+```{r}
+library(tidyverse)
+library(lubridate)
+
+schedule <- read_csv(
+  "https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2026/2026-02-10/schedule.csv"
+)
+
+schedule_clean <- schedule |>
+  mutate(
+    date = as.Date(date),
+    start_local = ymd_hms(start_datetime_local, tz = "Europe/Rome"),
+    end_local   = ymd_hms(end_datetime_local, tz = "Europe/Rome"),
+    duration_min = as.numeric(difftime(end_local, start_local, units = "mins")),
+    event_type = case_when(
+      is_training ~ "Training",
+      is_medal_event ~ "Medal Event",
+      TRUE ~ "Non-Medal Competition"
+    )
+  )
+
+```
+The following plot shows:
+
+Training sessions dominate early days.
+
+Medal events increase in frequency toward the middle and final days.
+
+The final days feature a high concentration of medal events.
+
+This suggests intentional pacing — building excitement toward the closing ceremony.
+
+```{r}
+schedule_clean |>
+  count(date, event_type) |>
+  ggplot(aes(x = date, y = n, fill = event_type)) +
+  geom_col() +
+  labs(
+    title = "Daily Olympic Schedule Composition",
+    x = NULL,
+    y = "Number of Sessions",
+    fill = NULL
+  ) +
+  theme_minimal()
+
+```
+Some disciplines require many sessions (e.g., hockey, skiing events), while others have fewer but longer events.
+
+This reflects structural differences in sport format:
+
+Tournament-based sports → many sessions
+
+Single-final sports → fewer sessions
+```{r}
+schedule_clean |>
+  count(discipline_name, sort = TRUE) |>
+  slice_max(n, n = 12) |>
+  ggplot(aes(x = reorder(discipline_name, n), y = n)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Top 12 Disciplines by Scheduled Sessions",
+    x = NULL,
+    y = "Number of Sessions"
+  ) +
+  theme_minimal()
+```
+
+A few venues host a disproportionate share of events.
+These become logistical hubs and likely media focal points.
+```{r}
+schedule_clean |>
+  count(venue_name, sort = TRUE) |>
+  slice_max(n, n = 10) |>
+  ggplot(aes(x = reorder(venue_name, n), y = n)) +
+  geom_col(fill = "darkred") +
+  coord_flip() +
+  labs(
+    title = "Top 10 Most Active Olympic Venues",
+    x = NULL,
+    y = "Number of Sessions"
+  ) +
+  theme_minimal()
+```
+
+
+Some sports (e.g., hockey) show longer session times.
+Others (e.g., sprint events) are short but numerous.
+
+This affects:
+
+Broadcast scheduling
+
+Athlete fatigue
+
+Venue turnover logistics
+```{r}
+schedule_clean |>
+  filter(!is.na(duration_min),
+         duration_min > 0,
+         duration_min < 8 * 60) |>
+  ggplot(aes(x = discipline_name, y = duration_min)) +
+  geom_boxplot(outlier.alpha = 0.2) +
+  coord_flip() +
+  labs(
+    title = "Event Duration by Discipline",
+    x = NULL,
+    y = "Duration (minutes)"
+  ) +
+  theme_minimal()
+```
+
+Overall Findings
+
+Medal events are strategically concentrated, increasing toward the final days.
+
+Training sessions dominate early scheduling, preparing athletes for peak competition.
+
+A small number of disciplines and venues dominate total activity.
+
+Event duration varies widely across sports, reflecting fundamental differences in competition structure.

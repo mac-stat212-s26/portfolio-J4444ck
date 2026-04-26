@@ -1,0 +1,70 @@
+---
+title: "Homework 05"
+format: 
+  html: 
+    embed-resources: true
+---
+
+
+## TidyTuesday Section (optional)
+
+::: {.callout-important title="Instructions"}
+
+You can count work on this week's TidyTuesday toward the exceptional work required for an A in the Homework component.
+
+:::
+
+```{r}
+library(tidyverse)
+library(readr)
+library(lubridate)
+```
+
+
+Research Question:
+
+How has the average clutch size (number of eggs per nest) of Hermann’s tortoises on Golem Grad Island changed over time?
+
+Background
+
+Hermann’s tortoises on Golem Grad Island in North Macedonia have been studied for many years to understand their reproduction and population dynamics. One important measure of reproductive success is clutch size, the number of eggs a female lays in a single nesting event. Clutch size can reflect environmental conditions, the health of individuals, and the availability of resources. If clutch sizes decline over time, it may indicate ecological stress or reduced reproductive capacity within the population. By examining how the average number of eggs per clutch changes across years, we can better understand whether reproductive output in this tortoise population appears stable or shows signs of change.
+
+```{r}
+
+clutch_size_cleaned <- readr::read_csv(
+"https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2026/2026-03-03/clutch_size_cleaned.csv"
+)
+
+clutch_year <- clutch_size_cleaned %>%
+  mutate(year = year(date)) %>%
+  group_by(year) %>%
+  summarise(
+    avg_clutch_size = mean(eggs, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+
+ggplot(clutch_year, aes(x = year, y = avg_clutch_size)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  labs(
+    title = "Average Tortoise Clutch Size Over Time",
+    subtitle = "Mean number of eggs per clutch by year",
+    x = "Year",
+    y = "Average eggs per clutch",
+    caption = "Data: TidyTuesday 2026 Week 9 – Golem Grad Tortoise"
+  ) +
+  theme_minimal()
+
+clutch_size_cleaned %>%
+  mutate(year = year(date)) %>%
+  ggplot(aes(x = factor(year), y = eggs)) +
+  geom_boxplot() +
+  labs(
+    title = "Distribution of Tortoise Clutch Sizes by Year",
+    x = "Year",
+    y = "Eggs per clutch"
+  ) +
+  theme_minimal()
+```
+
